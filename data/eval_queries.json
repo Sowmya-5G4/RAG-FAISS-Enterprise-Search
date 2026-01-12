@@ -1,0 +1,14 @@
+[
+  {
+    "query": "What is machine learning?",
+    "relevant_sources": ["ml_platform.txt"]
+  },
+  {
+    "query": "How does security apply to machine learning systems?",
+    "relevant_sources": ["security_ml.txt"]
+  },
+  {
+    "query": "What is cloud computing?",
+    "relevant_sources": ["cloud_architecture.txt"]
+  }
+]
