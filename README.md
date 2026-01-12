@@ -1,25 +1,25 @@
-📘 Retrieval-Augmented Generation (RAG) System with FAISS, Hybrid Routing & FastAPI
-Overview
+# Retrieval-Augmented Generation (RAG) System with FAISS, Hybrid Routing & FastAPI
 
-This project implements a production-style Retrieval-Augmented Generation (RAG) system from scratch, focusing on correct retrieval, explainability, and real-world system design rather than prompt-only demos.
+## Overview
 
-The system supports:
+This project implements a **production-style Retrieval-Augmented Generation (RAG) system from scratch**, designed to mirror **real-world enterprise knowledge search and analytics systems**.
 
-Semantic document retrieval using embeddings and FAISS
+The system emphasizes **correct retrieval, explainability, robustness, and deployment readiness**, rather than prompt-only demos.
 
-Hybrid query routing for structured (CSV) and unstructured (text) data
+Key capabilities include:
 
-Cross-encoder reranking for improved retrieval precision
+* Semantic document retrieval using **FAISS**
+* Hybrid query routing for **structured (CSV)** and **unstructured (text)** data
+* Cross-encoder **reranking** for improved retrieval precision
+* **Confidence scoring** and **source citations**
+* Optional **local LLM-based answer generation using Ollama**
+* **FastAPI** deployment for API-based usage
 
-Confidence scoring and source citations
+---
 
-Optional local LLM-based answer generation using Ollama
+## High-Level Architecture
 
-FastAPI deployment for real API-based usage
-
-The primary goal is to demonstrate how enterprise-grade knowledge search and analytics systems are designed, evaluated, and deployed.
-
-🧠 High-Level Architecture
+```
 User Query
    ↓
 Query Normalization
@@ -37,8 +37,13 @@ Query Router
 (Optional) Local LLM Generation (Ollama)
          ↓
 Answer + Confidence + Sources
+```
 
-📁 Project Structure
+---
+
+## Project Structure
+
+```
 RAG Project/
 ├── data/
 │   ├── docs/                 # Unstructured knowledge base (text files)
@@ -56,154 +61,176 @@ RAG Project/
 │   ├── structured_qa.py      # CSV-based analytics
 │   ├── generate_ollama.py    # Local LLM generation (Ollama)
 │   ├── evaluate.py           # Precision@K / Recall@K evaluation
-│   └── rag_pipeline.py       # CLI pipeline (isolated from API)
+│   └── rag_pipeline.py       # CLI pipeline
 │
 ├── requirements.txt
 └── README.md
+```
 
-🔍 Key Design Decisions
-1️⃣ Why FAISS?
+---
+
+## Key Design Decisions
+
+### Why FAISS?
 
 FAISS (Facebook AI Similarity Search) is used as the vector database because:
 
-Extremely fast similarity search
+* Extremely fast similarity search
+* Scales from small demos to millions of vectors
+* Fully local and free (no external services required)
+* Widely used in research and production systems
 
-Scales from small demos to millions of vectors
+FAISS cleanly separates **vector search** from **metadata storage**, matching real-world architectures.
 
-Fully local and free (no external services required)
+---
 
-Widely used in research and production systems
+### Why Hybrid RAG (Text + CSV)?
 
-FAISS cleanly separates vector search from metadata storage, mirroring real-world architectures.
+Enterprise systems must answer:
 
-2️⃣ Why Hybrid RAG (Text + CSV)?
+* **Semantic questions** (policies, documentation, knowledge bases)
+* **Analytical questions** (metrics, KPIs, incidents)
 
-Real enterprise systems must answer both:
+This project intelligently routes queries to:
 
-Semantic questions (policies, documentation, knowledge bases)
+* FAISS-based semantic retrieval for unstructured text
+* Pandas-based computation for structured CSV data
 
-Analytical questions (metrics, KPIs, incidents)
+---
 
-This project routes queries intelligently to:
+### Why Reranking?
 
-FAISS-based semantic retrieval for unstructured text
+FAISS optimizes for speed, not perfect ranking accuracy.
 
-Pandas-based computation for structured CSV data
+A **cross-encoder reranker** is applied after retrieval to:
 
-3️⃣ Why Reranking?
+* Improve precision
+* Reduce irrelevant context
+* Reflect enterprise RAG best practices
 
-FAISS optimizes for speed, not perfect accuracy.
+---
 
-A cross-encoder reranker is applied after retrieval to:
+### Why Ollama for Generation?
 
-Improve precision
-
-Reduce irrelevant context
-
-Reflect enterprise RAG best practices
-
-4️⃣ Why Ollama for Generation?
-
-LLM generation is intentionally optional and modular.
+LLM generation is **optional and modular**.
 
 Ollama is used because:
 
-Fully local (no API keys or quotas)
+* Fully local (no API keys or quotas)
+* Supports multiple open-source models
+* Easy to swap or disable
 
-Supports multiple open models
+If generation fails, the system still returns:
 
-Easy to swap or disable
+* Retrieved context
+* Confidence score
+* Source citations
 
-If generation fails, the system still returns retrieved context, confidence, and sources.
+---
 
-📊 Retrieval Evaluation
+## Retrieval Evaluation
 
 The project includes offline evaluation using:
 
-Precision@K
-
-Recall@K
+* **Precision@K**
+* **Recall@K**
 
 This enables:
 
-Measuring retrieval quality
+* Measuring retrieval quality
+* Validating reranking improvements
+* Data-driven iteration
 
-Validating reranking improvements
+---
 
-Data-driven iteration
+## FastAPI Service
 
-🚀 FastAPI Service
+### Start the API
 
-The RAG system is deployed as a FastAPI service.
-
-Start the API
+```bash
 uvicorn src.api:app --reload
+```
 
-Swagger UI
+### Swagger UI
+
+```
 http://127.0.0.1:8000/docs
+```
 
-Example Request
+### Example Request
+
+```json
 {
   "question": "How does security apply to machine learning systems?"
 }
+```
 
-Example Response
+### Example Response
+
+```json
 {
   "answer": "Security applies to machine learning systems by enforcing access control...",
   "confidence": "High (0.82)",
   "sources": ["security_ml.txt", "ml_platform.txt"],
   "route": "semantic"
 }
+```
 
-🧪 Running Locally (CLI)
+---
+
+## Running Locally (CLI)
+
+```bash
 python -m src.rag_pipeline
+```
 
-🛠️ Installation
+---
+
+## Installation
+
+```bash
 pip install -r requirements.txt
-
+```
 
 If generation is enabled, ensure Ollama is running:
 
+```bash
 ollama serve
+```
 
-⚠️ Notes on Generation
+---
 
-Local LLM generation may time out depending on model size and hardware
+## Notes on Generation
 
-Retrieval, confidence scoring, and citations work independently of generation
+* Local LLM generation may time out depending on model size and hardware
+* Retrieval, confidence scoring, and citations work independently of generation
+* This behavior is intentional and production-safe
 
-This behavior is intentional and production-safe
+---
 
-✅ What This Project Demonstrates
+## What This Project Demonstrates
 
-End-to-end RAG system design
+* End-to-end RAG system design
+* FAISS vector database usage
+* Hybrid structured + unstructured querying
+* Cross-encoder reranking
+* Retrieval evaluation metrics
+* Production-safe error handling
+* FastAPI deployment
+* Modular, extensible architecture
 
-FAISS vector database usage
+---
 
-Hybrid structured + unstructured querying
+## Future Enhancements
 
-Cross-encoder reranking
+* Streaming responses
+* Dockerized deployment
+* Authentication & rate limiting
+* UI frontend
+* Multiple vector database backends
 
-Retrieval evaluation metrics
+---
 
-Production-safe error handling
+## Author
 
-FastAPI deployment
-
-Modular, extensible architecture
-
-🔮 Future Enhancements
-
-Streaming responses
-
-Dockerized deployment
-
-Authentication & rate limiting
-
-UI frontend
-
-Multiple vector backends
-
-👤 Author
-
-Built as a learning and portfolio project to demonstrate real-world Retrieval-Augmented Generation system design and backend deployment practices.
+Built as a **learning and portfolio project** to demonstrate **real-world Retrieval-Augmented Generation system design and backend deployment practices**.
