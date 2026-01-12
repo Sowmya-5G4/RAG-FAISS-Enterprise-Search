@@ -1,0 +1,17 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Generated vector data
+embeddings.npy
+chunks.npy
+sources.npy
+vector.index
+
+# Editor / OS
+.vscode/
+.DS_Store
+
+# Environment variables
+.env

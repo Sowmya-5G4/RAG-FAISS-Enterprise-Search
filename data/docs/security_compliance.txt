@@ -1,0 +1,7 @@
+Security and compliance are critical components of the platform. All systems must adhere to internal security standards and external regulatory requirements.
+
+Access to systems is controlled using identity and access management. Secrets such as API keys, database credentials, and tokens must never be hardcoded and should be stored in secure secret managers.
+
+Data encryption is required both at rest and in transit. Audit logs are maintained for all access to sensitive systems and data.
+
+Compliance requirements include regular security reviews, penetration testing, and incident response drills. Any security incident must be reported and investigated according to established procedures.

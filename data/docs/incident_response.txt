@@ -1,0 +1,7 @@
+The incident response process defines how the organization responds to system failures, security breaches, and performance degradation.
+
+Incidents are classified based on severity and impact. High-severity incidents require immediate response and escalation.
+
+Response steps include identifying the issue, mitigating impact, restoring services, and conducting post-incident analysis.
+
+Lessons learned from incidents are documented and used to improve system reliability, security controls, and operational procedures.

@@ -1,0 +1,7 @@
+Python is a programming language created by Guido van Rossum.
+
+Machine Learning allows systems to learn from data.
+
+Retrieval Augmented Generation (RAG) combines search with LLMs.
+
+Gemini is a multimodal large language model developed by Google.

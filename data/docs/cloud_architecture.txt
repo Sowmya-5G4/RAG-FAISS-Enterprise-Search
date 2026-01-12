@@ -1,0 +1,9 @@
+The cloud architecture is built using a multi-region deployment strategy to ensure high availability and disaster recovery.
+
+Core services run on managed Kubernetes clusters. Each service is containerized and deployed using CI/CD pipelines. Infrastructure is defined using Infrastructure as Code tools.
+
+Networking includes private virtual networks, load balancers, and service meshes to control traffic between services. Autoscaling policies are applied based on CPU, memory, and request load.
+
+Cloud storage is used for model artifacts, logs, and datasets. Access to storage resources is restricted using identity and access management policies.
+
+Security best practices include network isolation, encryption in transit and at rest, and continuous vulnerability scanning.

@@ -1,0 +1,7 @@
+The data platform supports ingestion, storage, processing, and analytics for large-scale datasets.
+
+Data is ingested from multiple sources including application logs, databases, and external APIs. Streaming data pipelines handle real-time data, while batch pipelines process historical data.
+
+Storage layers include data lakes for raw data and data warehouses for structured analytics. Data quality checks are applied to ensure consistency and correctness.
+
+The data platform integrates with machine learning workflows by providing clean and curated datasets for training and evaluation.
