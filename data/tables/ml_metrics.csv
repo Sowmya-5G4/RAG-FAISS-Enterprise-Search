@@ -1,0 +1,5 @@
+model_name,accuracy,latency_ms,requests_per_day,last_incident_days
+fraud_model_v1,0.92,120,45000,18
+recommendation_model,0.87,90,120000,45
+vision_model,0.89,200,30000,5
+nlp_model,0.91,110,80000,60
