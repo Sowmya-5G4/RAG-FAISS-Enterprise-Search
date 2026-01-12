@@ -3,14 +3,29 @@ from router import classify_query
 from generate import generate_answer
 from generate_ollama import generate_answer
 
+def normalize_query(query):
+    q = query.lower().strip()
+
+    alias_map = {
+        "ml": "What is machine learning?",
+        "why ml": "Why is machine learning important?",
+        "ai": "What is artificial intelligence?",
+        "cloud": "What is cloud computing?",
+        "security": "Why is security important?",
+        "cloud security": "How does security apply to cloud systems?",
+    }
+
+    return alias_map.get(q, query)
 
 query = input("Ask a question: ")
+normalized_query = normalize_query(query)
+
 
 route = classify_query(query)
 print(f"\nQuery type: {route}")
 
 if route == "semantic":
-    results = retrieve(query, top_k=3)
+    results = retrieve(normalized_query, top_k=3)
 
     if not results:
         print("\nNo relevant context found. Try rephrasing the question.\n")
@@ -22,7 +37,7 @@ if route == "semantic":
             print("-" * 40)
 
         print("\nGenerated answer:\n")
-        answer = generate_answer(query, results)
+        answer = generate_answer(normalized_query, results)
 
 # 🔹 Add citations
 sources = sorted(set(r["source"] for r in results))
