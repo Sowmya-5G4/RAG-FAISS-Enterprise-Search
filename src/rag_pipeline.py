@@ -2,6 +2,8 @@ from retrieve_faiss import retrieve
 from router import classify_query
 from generate import generate_answer
 from generate_ollama import generate_answer
+from rerank import rerank
+
 
 def normalize_query(query):
     q = query.lower().strip()
@@ -25,7 +27,9 @@ route = classify_query(query)
 print(f"\nQuery type: {route}")
 
 if route == "semantic":
-    results = retrieve(normalized_query, top_k=3)
+    results = retrieve(normalized_query, top_k=10)
+    results = rerank(normalized_query, results, top_k=3)
+
 
     if not results:
         print("\nNo relevant context found. Try rephrasing the question.\n")
