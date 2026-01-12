@@ -28,11 +28,24 @@ if route == "semantic":
 sources = sorted(set(r["source"] for r in results))
 citations = "\n".join(f"- {s}" for s in sources)
 
+# 🔹 Confidence score (based on retrieval similarity)
+confidence_score = max(r["score"] for r in results)
+
+if confidence_score >= 0.75:
+    confidence_label = "High"
+elif confidence_score >= 0.5:
+    confidence_label = "Medium"
+else:
+    confidence_label = "Low"
+
 final_answer = f"""{answer}
+
+Confidence: {confidence_label} ({confidence_score:.2f})
 
 Sources:
 {citations}
 """
+
 
 print(final_answer)
 
