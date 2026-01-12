@@ -1,200 +1,209 @@
-# Retrieval-Augmented Generation (RAG) System with FAISS and Gemini
+📘 Retrieval-Augmented Generation (RAG) System with FAISS, Hybrid Routing & FastAPI
+Overview
 
-## Overview
+This project implements a production-style Retrieval-Augmented Generation (RAG) system from scratch, focusing on correct retrieval, explainability, and real-world system design rather than prompt-only demos.
 
-This project implements a **production-style Retrieval-Augmented Generation (RAG) system** from scratch. The system retrieves relevant information from a document corpus using **semantic search with embeddings and a vector database (FAISS)** and optionally generates a natural-language answer using **Google Gemini**.
+The system supports:
 
-The focus of this project is **correct, explainable retrieval**, which is the most critical and challenging part of real-world RAG systems.
+Semantic document retrieval using embeddings and FAISS
 
----
+Hybrid query routing for structured (CSV) and unstructured (text) data
 
-## Architecture (High Level)
+Cross-encoder reranking for improved retrieval precision
 
-```
+Confidence scoring and source citations
+
+Optional local LLM-based answer generation using Ollama
+
+FastAPI deployment for real API-based usage
+
+The primary goal is to demonstrate how enterprise-grade knowledge search and analytics systems are designed, evaluated, and deployed.
+
+🧠 High-Level Architecture
 User Query
    ↓
-Query Classification (semantic)
+Query Normalization
    ↓
-Query Decomposition (multi-intent handling)
-   ↓
-Embedding Generation (Gemini embeddings)
-   ↓
-FAISS Vector Search
-   ↓
-Relevant Context Chunks
-   ↓
-(Optional) LLM Generation (Gemini)
-```
+Query Router
+   ├── Structured Queries → Pandas (CSV analytics)
+   └── Semantic Queries
+         ↓
+     FAISS Vector Search
+         ↓
+     Cross-Encoder Reranking
+         ↓
+     Context Selection
+         ↓
+(Optional) Local LLM Generation (Ollama)
+         ↓
+Answer + Confidence + Sources
 
----
-
-## Project Structure
-
-```
+📁 Project Structure
 RAG Project/
 ├── data/
-│   └── docs/                 # Knowledge base documents
+│   ├── docs/                 # Unstructured knowledge base (text files)
+│   ├── tables/               # Structured CSV data
+│   └── eval_queries.json     # Evaluation dataset
 │
 ├── src/
-│   ├── ingest.py             # Load documents
-│   ├── chunk.py              # Chunk large documents
-│   ├── embed_faiss.py        # Create embeddings + FAISS index
+│   ├── api.py                # FastAPI service
+│   ├── ingest.py             # Document loading
+│   ├── chunk.py              # Document chunking
+│   ├── embed_faiss.py        # Embeddings + FAISS index creation
 │   ├── retrieve_faiss.py     # FAISS-based retriever
+│   ├── rerank.py             # Cross-encoder reranking
 │   ├── router.py             # Query classification
-│   ├── generate.py           # LLM generation (guarded)
-│   └── rag_pipeline.py       # End-to-end pipeline
+│   ├── structured_qa.py      # CSV-based analytics
+│   ├── generate_ollama.py    # Local LLM generation (Ollama)
+│   ├── evaluate.py           # Precision@K / Recall@K evaluation
+│   └── rag_pipeline.py       # CLI pipeline (isolated from API)
 │
-├── vector.index              # FAISS index (generated)
-├── chunks.npy                # Chunk text metadata
-├── sources.npy               # Source metadata
 ├── requirements.txt
 └── README.md
-```
 
----
-
-## Key Design Decisions
-
-### 1. Why FAISS?
+🔍 Key Design Decisions
+1️⃣ Why FAISS?
 
 FAISS (Facebook AI Similarity Search) is used as the vector database because:
 
-* It is **fast and scalable** for similarity search
-* It is **free and local** (no external services required)
-* It is widely used in research and production systems
-* It cleanly separates **vector search** from **metadata storage**
+Extremely fast similarity search
 
-FAISS allows the system to scale from small demos to **millions of document chunks** without changing architecture.
+Scales from small demos to millions of vectors
 
----
+Fully local and free (no external services required)
 
-### 2. Why Gemini for Embeddings?
+Widely used in research and production systems
 
-Gemini embedding models provide:
+FAISS cleanly separates vector search from metadata storage, mirroring real-world architectures.
 
-* High-quality semantic representations
-* Strong performance on technical and enterprise text
-* Easy integration with Google’s GenAI SDK
+2️⃣ Why Hybrid RAG (Text + CSV)?
 
-Embeddings are used for **semantic retrieval**, not keyword matching.
+Real enterprise systems must answer both:
 
----
+Semantic questions (policies, documentation, knowledge bases)
 
-### 3. Why Only One Gemini Generation Model?
+Analytical questions (metrics, KPIs, incidents)
 
-The project uses **one Gemini generation model** (e.g., `gemini-2.5-pro` or `gemini-flash-latest`) for the following reasons:
+This project routes queries intelligently to:
 
-* Generation is **modular** and easily replaceable
-* Retrieval quality matters more than generation model choice
-* Free-tier API quotas are limited
-* The system is designed so generation can be swapped with:
+FAISS-based semantic retrieval for unstructured text
 
-  * OpenAI GPT models
-  * Local LLMs (Ollama / llama.cpp)
-  * Any future model
+Pandas-based computation for structured CSV data
 
-The model choice does **not affect retrieval correctness**, which is the core of RAG.
+3️⃣ Why Reranking?
 
----
+FAISS optimizes for speed, not perfect accuracy.
 
-## Retrieval Strategy
+A cross-encoder reranker is applied after retrieval to:
 
-* Semantic embeddings are generated for document chunks
-* FAISS performs similarity search
-* A **similarity threshold** filters weak matches
-* **Fallback logic** ensures at least one relevant chunk is returned
-* **Multi-intent queries** are decomposed and retrieved independently
+Improve precision
 
-This avoids empty results and reduces noise.
+Reduce irrelevant context
 
----
+Reflect enterprise RAG best practices
 
-## Generation Step
+4️⃣ Why Ollama for Generation?
 
-The generation step:
+LLM generation is intentionally optional and modular.
 
-* Receives retrieved context
-* Is restricted to answer **only using retrieved text**
-* Is wrapped in error handling to gracefully handle API quota limits
+Ollama is used because:
 
-If generation fails, the system still returns grounded context.
+Fully local (no API keys or quotas)
 
----
+Supports multiple open models
 
-## Example Queries
+Easy to swap or disable
 
-```
-What is machine learning?
-How does security apply to machine learning systems?
-How does cloud infrastructure support ML workloads?
-What happens during a security incident?
-```
+If generation fails, the system still returns retrieved context, confidence, and sources.
 
----
+📊 Retrieval Evaluation
 
-## How to Run
+The project includes offline evaluation using:
 
-### 1. Install dependencies
+Precision@K
 
-```
+Recall@K
+
+This enables:
+
+Measuring retrieval quality
+
+Validating reranking improvements
+
+Data-driven iteration
+
+🚀 FastAPI Service
+
+The RAG system is deployed as a FastAPI service.
+
+Start the API
+uvicorn src.api:app --reload
+
+Swagger UI
+http://127.0.0.1:8000/docs
+
+Example Request
+{
+  "question": "How does security apply to machine learning systems?"
+}
+
+Example Response
+{
+  "answer": "Security applies to machine learning systems by enforcing access control...",
+  "confidence": "High (0.82)",
+  "sources": ["security_ml.txt", "ml_platform.txt"],
+  "route": "semantic"
+}
+
+🧪 Running Locally (CLI)
+python -m src.rag_pipeline
+
+🛠️ Installation
 pip install -r requirements.txt
-```
 
-### 2. Set API key
 
-```
-export GEMINI_API_KEY=your_key_here
-```
+If generation is enabled, ensure Ollama is running:
 
-(Windows PowerShell)
+ollama serve
 
-```
-setx GEMINI_API_KEY "your_key_here"
-```
+⚠️ Notes on Generation
 
-### 3. Build embeddings and FAISS index
+Local LLM generation may time out depending on model size and hardware
 
-```
-python src/embed_faiss.py
-```
+Retrieval, confidence scoring, and citations work independently of generation
 
-### 4. Run the pipeline
+This behavior is intentional and production-safe
 
-```
-python src/rag_pipeline.py
-```
+✅ What This Project Demonstrates
 
----
+End-to-end RAG system design
 
-## Notes on API Quotas
+FAISS vector database usage
 
-* Gemini free-tier API limits may block generation
-* Retrieval works independently of generation
-* This is expected behavior and documented intentionally
+Hybrid structured + unstructured querying
 
----
+Cross-encoder reranking
 
-## What This Project Demonstrates
+Retrieval evaluation metrics
 
-* End-to-end RAG architecture
-* Vector database usage (FAISS)
-* Semantic retrieval with embeddings
-* Multi-intent query handling
-* Threshold-based filtering
-* Robust fallback logic
-* Production-style error handling
+Production-safe error handling
 
----
+FastAPI deployment
 
-## Future Enhancements
+Modular, extensible architecture
 
-* Add reranking model
-* Add structured data (CSV / SQL) retrieval
-* Add local LLM for generation
-* Deploy as a web service
+🔮 Future Enhancements
 
----
+Streaming responses
 
-## Author
+Dockerized deployment
 
-Built as a learning and portfolio project to demonstrate real-world RAG system design.
+Authentication & rate limiting
+
+UI frontend
+
+Multiple vector backends
+
+👤 Author
+
+Built as a learning and portfolio project to demonstrate real-world Retrieval-Augmented Generation system design and backend deployment practices.
