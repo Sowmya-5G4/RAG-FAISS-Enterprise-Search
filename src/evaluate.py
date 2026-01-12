@@ -1,6 +1,7 @@
 import json
-from retrieve_faiss import retrieve
-from rerank import rerank
+from src.retrieve_faiss import retrieve
+from src.rerank import rerank
+
 
 def precision_at_k(results, relevant_sources, k):
     retrieved_sources = [r["source"] for r in results[:k]]

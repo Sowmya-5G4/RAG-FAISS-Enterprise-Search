@@ -1,9 +1,8 @@
-from retrieve_faiss import retrieve
-from router import classify_query
-from generate import generate_answer
-from generate_ollama import generate_answer
-from rerank import rerank
-from structured_qa import answer_structured_query
+from src.router import classify_query
+from src.retrieve_faiss import retrieve
+from src.rerank import rerank
+from src.generate_ollama import generate_answer
+from src.structured_qa import answer_structured_query
 
 
 def normalize_query(query):
@@ -20,33 +19,35 @@ def normalize_query(query):
 
     return alias_map.get(q, query)
 
-query = input("Ask a question: ")
-normalized_query = normalize_query(query)
 
-route = classify_query(normalized_query)
-print(f"\nQuery type: {route}")
+def run_cli():
+    query = input("Ask a question: ")
+    normalized_query = normalize_query(query)
 
-# ---------------- STRUCTURED PATH ----------------
-if route == "structured":
-    answer = answer_structured_query(normalized_query)
-    print("\nAnswer:\n")
-    print(answer)
+    route = classify_query(normalized_query)
+    print(f"\nQuery type: {route}")
 
-# ---------------- SEMANTIC (RAG) PATH ----------------
-else:
-    results = retrieve(normalized_query, top_k=10)
-    results = rerank(normalized_query, results, top_k=3)
+    # ---------------- STRUCTURED PATH ----------------
+    if route == "structured":
+        answer = answer_structured_query(normalized_query)
+        print("\nAnswer:\n")
+        print(answer)
 
-    if not results:
-        print("\nNo relevant context found. Try rephrasing the question.\n")
+    # ---------------- SEMANTIC (RAG) PATH ----------------
     else:
+        results = retrieve(normalized_query, top_k=10)
+        results = rerank(normalized_query, results, top_k=3)
+
+        if not results:
+            print("\nNo relevant context found. Try rephrasing the question.\n")
+            return
+
         print("\nRetrieved context:\n")
         for r in results:
             print(f"[{r['source']}] score={r['score']}")
             print(r["text"])
             print("-" * 40)
 
-        print("\nGenerated answer:\n")
         answer = generate_answer(normalized_query, results)
 
         # 🔹 Citations
@@ -71,4 +72,10 @@ Sources:
 {citations}
 """
 
+        print("\nGenerated answer:\n")
         print(final_answer)
+
+
+# 🔐 IMPORTANT: Prevent FastAPI from executing CLI input
+if __name__ == "__main__":
+    run_cli()
