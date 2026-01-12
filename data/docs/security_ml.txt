@@ -1,0 +1,13 @@
+Security in machine learning systems is critical to protect data, models, and infrastructure throughout the ML lifecycle.
+
+Access control ensures that only authorized users and services can access training data, models, and inference endpoints. Role-based access control (RBAC) and identity and access management (IAM) policies are commonly enforced across cloud environments.
+
+Data security includes encrypting sensitive data at rest and in transit. Training datasets often contain confidential or regulated information, requiring compliance with standards such as GDPR, HIPAA, or SOC 2. Secure storage systems and key management services are used to protect encryption keys.
+
+Secrets management is essential for handling API keys, database credentials, and service tokens. Secrets should never be hardcoded and must be stored using secure secret managers.
+
+Model security focuses on protecting trained models from unauthorized access, tampering, or theft. Deployed models are typically exposed via authenticated APIs with rate limiting and logging enabled.
+
+Monitoring and auditing are used to detect anomalous behavior, security incidents, and policy violations. Logs and metrics are collected to support incident response and compliance reporting.
+
+Together, these security controls help ensure that machine learning systems are reliable, compliant, and resistant to attacks.
