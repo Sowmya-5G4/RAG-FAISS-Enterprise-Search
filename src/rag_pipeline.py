@@ -1,6 +1,8 @@
 from retrieve_faiss import retrieve
 from router import classify_query
 from generate import generate_answer
+from generate_ollama import generate_answer
+
 
 query = input("Ask a question: ")
 
