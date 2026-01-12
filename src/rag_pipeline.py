@@ -23,4 +23,16 @@ if route == "semantic":
 
         print("\nGenerated answer:\n")
         answer = generate_answer(query, results)
-        print(answer)
+
+# 🔹 Add citations
+sources = sorted(set(r["source"] for r in results))
+citations = "\n".join(f"- {s}" for s in sources)
+
+final_answer = f"""{answer}
+
+Sources:
+{citations}
+"""
+
+print(final_answer)
+
